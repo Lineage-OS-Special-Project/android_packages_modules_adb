@@ -84,6 +84,13 @@ static bool should_drop_privileges() {
     std::string prop = android::base::GetProperty("service.adb.root", "");
     bool adb_root = (prop == "1");
     bool adb_unroot = (prop == "0");
+
+    if (adb_root) {
+        sleep(2);
+    } else {
+        sleep(8);
+    }
+
     if (ro_debuggable && adb_root) {
         drop = false;
     }

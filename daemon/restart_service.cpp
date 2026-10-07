@@ -67,8 +67,18 @@ void restart_root_service(unique_fd fd) {
 #endif
 
     LOG(INFO) << "adbd restarting as root";
-    android::base::SetProperty("service.adb.root", "1");
+
+    const bool set_ok = android::base::SetProperty("service.adb.root", "1");
+    const std::string current =
+            android::base::GetProperty("service.adb.root", "<unset>");
+
+    WriteFdFmt(fd.get(),
+               "DEBUG: SetProperty(service.adb.root=1)=%s current=%s\n",
+               set_ok ? "true" : "false", current.c_str());
+
     WriteFdExactly(fd.get(), "restarting adbd as root\n");
+
+    sleep((set_ok && current == "1") ? 2 : 8);
 }
 
 void restart_unroot_service(unique_fd fd) {
